@@ -1,0 +1,30 @@
+w16 scalar, f32         time:   [33.370 µs 33.393 µs 33.419 µs]
+Found 3 outliers among 100 measurements (3.00%)
+  3 (3.00%) high severe
+
+w16 scalar, f32 #2      time:   [32.909 µs 32.927 µs 32.947 µs]
+Found 16 outliers among 100 measurements (16.00%)
+  3 (3.00%) high mild
+  13 (13.00%) high severe
+
+w16 scalar, f64         time:   [33.920 µs 33.936 µs 33.954 µs]
+Found 17 outliers among 100 measurements (17.00%)
+  7 (7.00%) high mild
+  10 (10.00%) high severe
+
+w24 scalar, f64         time:   [56.641 µs 56.677 µs 56.722 µs]
+Found 15 outliers among 100 measurements (15.00%)
+  1 (1.00%) low mild
+  3 (3.00%) high mild
+  11 (11.00%) high severe
+
+w32 scalar, f64         time:   [79.659 µs 79.697 µs 79.746 µs]
+Found 14 outliers among 100 measurements (14.00%)
+  1 (1.00%) low mild
+  4 (4.00%) high mild
+  9 (9.00%) high severe
+
+w16 avx2, f32           time:   [3.4231 µs 3.4258 µs 3.4286 µs]
+Found 6 outliers among 100 measurements (6.00%)
+  5 (5.00%) high mild
+  1 (1.00%) high severe

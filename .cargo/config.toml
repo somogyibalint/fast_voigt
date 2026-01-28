@@ -1,0 +1,2 @@
+[x86_64-pc-windows-msvc]
+rustflags = ["-Ctarget-cpu=native", "-C opt-level=3", "-C codegen-units=1"]
