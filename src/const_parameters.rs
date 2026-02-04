@@ -1,18 +1,20 @@
+use num_traits::{Float, FromPrimitive};
+
 pub const SQRT2PI: f64 = 2.5066282746310002; // √(2π)
 pub const RSQRTPI: f64 = 0.5641895835477563; // 1.0 / √π 
 
 pub const L16: f64 = 3.3635856610148585; // sqrt(N)/2^(1/4)
 pub const L24: f64 = 4.1195342878142354; // sqrt(N)/2^(1/4)
-pub const L32: f64 = 4.756828460010884; // sqrt(N)/2^(1/4)
-// pub const L16s: f32 = L16 as f32;
+pub const L32: f64 = 4.7568284600108843;  // sqrt(N)/2^(1/4)
+pub const L16s: f32 = L16 as f32;
 
-
-pub const W16: [f64; 16] = [
+pub const W16S: [f32; 16] = [
     9.9393225361232851e-07, 3.9812875760042709e-06, -5.5842334104101195e-06, -2.7346404624048783e-05,
     2.1709867932466571e-05, 2.1071056396581287e-04, 8.7031584284902146e-05, -1.5276597401218833e-03,
     -3.8810151890227547e-03, 3.6825673170924143e-03, 5.1822402431611909e-02, 1.9124172674669498e-01,
     4.6929090090360348e-01, 8.8644783020505524e-01, 1.3622408222719591e+00, 1.7483958860819617e+00];
-pub const W16S: [f32; 16] = [
+
+pub const W16: [f64; 16] = [
     9.9393225361232851e-07, 3.9812875760042709e-06, -5.5842334104101195e-06, -2.7346404624048783e-05,
     2.1709867932466571e-05, 2.1071056396581287e-04, 8.7031584284902146e-05, -1.5276597401218833e-03,
     -3.8810151890227547e-03, 3.6825673170924143e-03, 5.1822402431611909e-02, 1.9124172674669498e-01,
@@ -37,22 +39,59 @@ pub const W32: [f64; 32] = [
     1.3455441692345453e+00, 1.8256696296324824e+00, 2.2635372999002676e+00, 2.5722534081245696e+00];
 
 
-pub struct WeidemanParams {
-    pub coef: &'static [f64],
-    pub l: f64
+pub struct WeidemanParams<T> where 
+T: Float + 'static {
+    pub coef: &'static [T],
+    pub l: T
 } 
-pub const WP16: WeidemanParams = WeidemanParams {
+pub const WP16S: WeidemanParams<f32> = WeidemanParams {
+    coef: &W16S,
+    l: L16 as f32
+}; 
+
+pub const WP16: WeidemanParams<f64> = WeidemanParams {
     coef: &W16,
     l: L16
 }; 
-pub const WP24: WeidemanParams = WeidemanParams {
+pub const WP24: WeidemanParams<f64> = WeidemanParams {
     coef: &W24,
     l: L24
 };
-pub const WP32: WeidemanParams = WeidemanParams {
+pub const WP32: WeidemanParams<f64> = WeidemanParams {
     coef: &W32,
     l: L32
 };
+
+
+pub(crate) trait VoigtConstants {
+    const ZERO: Self;
+    const ONE: Self;
+    const TWO: Self;
+    const FOUR: Self;
+    const SQRT2PI: Self;
+    const RSQRTPI: Self;
+    const SQRT2: Self; 
+}
+
+impl VoigtConstants for f32 {
+    const ZERO: Self = 0f32;
+    const ONE: Self = 1f32;
+    const TWO: Self = 2f32;
+    const FOUR: Self = 4f32;
+    const SQRT2PI: Self = 2.5066282746310002;
+    const RSQRTPI: Self = 0.5641895835477563;
+    const SQRT2: Self = std::f32::consts::SQRT_2; 
+}
+
+impl VoigtConstants for f64 {
+    const ZERO: Self = 0f64;
+    const ONE: Self = 1f64;
+    const TWO: Self = 2f64;
+    const FOUR: Self = 4f64;
+    const SQRT2PI: Self = 2.5066282746310002;
+    const RSQRTPI: Self = 0.5641895835477563;
+    const SQRT2: Self = std::f64::consts::SQRT_2; 
+}
 
 // pub trait WeidemanParams<T> 
 // where T: Float + 'static {

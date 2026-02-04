@@ -2,6 +2,7 @@ use std::{hint::black_box};
 use std::ops::AddAssign;
 use criterion::{criterion_group, criterion_main, Criterion};
 use fast_voigt::*;
+
 use num_traits::{Float};
 use pulp::x86::V3;
 
@@ -20,7 +21,7 @@ where T: Float + AddAssign
 
 fn w16_scalar_benchmarks(c: &mut Criterion) {
     let x = linspace(0.0f32, 5.0f32, 2048);
-    c.bench_function("w16 scalar, f32", |b| b.iter(|| w16_f32_f32scalar(&x, 0.0, 0.5, 0.5, black_box(1.0))));
+    // c.bench_function("w16 scalar, f32", |b| b.iter(|| w16_f32_f32scalar(&x, 0.0, 0.5, 0.5, black_box(1.0))));
     c.bench_function("w16 scalar, f32", |b| b.iter(|| fast_voigt16_s(&x, 0.0, 0.5, 0.5, black_box(1.0))));
     let x = linspace(0.0f64, 5.0f64, 2048);
     c.bench_function("w16 scalar, f64", |b| b.iter(|| fast_voigt16(&x, 0.0, 0.5, 0.5, black_box(1.0))));

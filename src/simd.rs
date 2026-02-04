@@ -1,10 +1,20 @@
 use pulp::Simd;
 use pulp::x86::V3;
 use pulp::{cast, f32x8};
-use crate::const_parameters::*;
-use crate::calc_constants;
 use core::iter;
+use crate::const_parameters::*;
+use crate::scalar::eval_weidman;
+use crate::calc_constants;
 
+
+// simd:
+// V3 / V4
+// f32x8, f32x16, f64x4, f64x8
+// 16, 24, 32
+//   as_arrays/as_mut_simd_f32s, 
+//   splat
+//   cast
+//   sub, mul, mul_add, div,  
 
 
 pub fn weideman16_avx2_f32(simd: V3, xvec: &[f32], x0:f32, gamma:f32, sigma:f32, intensity:f32) -> Vec<f32> {
@@ -26,20 +36,21 @@ pub fn weideman16_avx2_f32(simd: V3, xvec: &[f32], x0:f32, gamma:f32, sigma:f32,
             // let mut y = Vec::with_capacity(xvec.len());
             let mut y = vec![0.0f32; xvec.len()];
             
-            let (c0, c1, c2, c3, c4, c5) = calc_constants(gamma, sigma, intensity, L16);
+            let (c0, c1, c2, c3, c4, c5) = calc_constants(gamma, sigma, intensity, L16s);
             let (x8, x1) = pulp::as_arrays::<8, _>(xvec);
             let (y8, y1) = V3::as_mut_simd_f32s(&mut y);
 
-            let x0 = simd.splat_f32x8(x0);
+            let x0vec = simd.splat_f32x8(x0);
             
             
             for (x, y) in iter::zip(x8, y8) {
                 let tmp: f32x8 = cast(*x);
-                let dx = simd.sub_f32x8(tmp, x0);
+                let dx = simd.sub_f32x8(tmp, x0vec);
                 let dx2= simd.mul_f32x8(dx, dx);
             
                 let tmp = simd.mul_add_f32x8(dx2, simd.splat_f32x8(2.0), simd.splat_f32x8(c1));
-                let denominator = simd.approx_reciprocal_f32x8(tmp);
+                // let denominator = simd.approx_reciprocal_f32x8(tmp);     //TODO
+                let denominator = simd.div_f32x8(simd.splat_f32x8(1.0),tmp); //TODO
                 
                 // let z_re = _2*(c4 - dx*dx) * denominator;
                 let tmp = simd.sub_f32x8(simd.splat_f32x8(c4), dx2);
@@ -73,6 +84,9 @@ pub fn weideman16_avx2_f32(simd: V3, xvec: &[f32], x0:f32, gamma:f32, sigma:f32,
                 *y = simd.mul_f32x8(simd.splat_f32x8(c0), tmp);
                 
             }
+            for (x, y) in iter::zip(x1, y1) {
+                *y = eval_weidman(*x-x0, (c0, c1, c2, c3, c4, c5), &WP16S);
+            }
             y
         }
     }
@@ -100,24 +114,43 @@ fn mul_c_f32x8(simd: V3, x: f32x8, c: f32) -> f32x8 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::ops::AddAssign;
-    use num_traits::{Float, FromPrimitive};
 
-    fn linspace<T>(fr: T, to: T, n: u32) -> Vec<T> where 
-    T: Float + FromPrimitive + AddAssign {
-        let mut x = T::zero();
-        let dx = (to - fr) / ( T::from(n - 1).unwrap()  );
-        let mut array = Vec::with_capacity(n as usize);
-        for _ in 0..n {
-            array.push(x);
-            x += dx;
-        }
-        array
-    }
- 
     #[test]
-    fn test_simd() {
-        let x = linspace(0.0, 5.0, 1024);
+    fn test_simd_accuarcy() {
+        use crate::test_utils::evaluate_accuracy;
+        
+        fn test_w16_avx2_f32(x: &[f32], x0: f32, gamma: f32, sigma: f32, intensity: f32) -> Vec<f32> {
+            let simd= V3::try_new().unwrap();
+             weideman16_avx2_f32(simd, &x, x0, gamma, sigma, intensity)
+        }
+        assert!(evaluate_accuracy(test_w16_avx2_f32, 1E-6));
+    }
+
+    // #[test]
+    // fn compare_to_scalar_w16f32() {
+    //     use crate::test_utils::linspace;
+    //     use crate::w16_f32_f32scalar;
+
+    //     let x = linspace(0.0, 10.0, 101);
+    //     let x0 = 0.0;
+    //     let gamma = 0.5;
+    //     let sigma = 0.5;
+    //     let intensity = 1.0;
+        
+    //     let simd= V3::try_new().unwrap();
+    //     let ys = w16_f32_f32scalar(&x, x0, gamma, sigma, intensity);
+    //     let yv = weideman16_avx2_f32(simd, &x, x0, gamma, sigma, intensity);
+    //     for (s, v) in ys.iter().zip(yv.iter()) {
+    //         println!("{}  {}  {}", s, v, s-v);
+    //     }
+    // }
+
+
+    #[test]
+    fn test_work() {
+        use crate::test_utils::linspace;
+
+        let x = linspace(0.0, 10.0, 2001);
         let x0 = 0.0;
         let gamma = 0.5;
         let sigma = 0.5;
@@ -132,12 +165,18 @@ mod tests {
             println!("{}", y[127]);
             println!("{}", y[255]);
             println!("{}", y[1023]);
+            println!("{}", y[2000]);
 
-            // (127, 2.94541176272260508e-01),
-            // (255, 1.26062625829457348e-01),
-            // (1023, 6.49746971953819082e-03),
+        // (0, 4.17418561040735436e-01),
+        // (1, 4.17408650320942820e-01),
+        // (7, 4.16933282958152407e-01),
+        // (63, 3.80311100325604223e-01),
+        // (127, 2.90046558879590188e-01),
+        // (255, 1.20770262633453737e-01),
+        // (511, 2.64831190930530785e-02),
+        // (1023, 6.20284807080986877e-03),
+        // (2000, 1.59956736012200696e-03)
         }
-
     }
 
 }
