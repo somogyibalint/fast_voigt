@@ -1,4 +1,4 @@
-use num_traits::{Float, FromPrimitive};
+use num_traits::Float;
 
 pub const SQRT2PI: f64 = 2.5066282746310002; // √(2π)
 pub const RSQRTPI: f64 = 0.5641895835477563; // 1.0 / √π 
@@ -6,7 +6,7 @@ pub const RSQRTPI: f64 = 0.5641895835477563; // 1.0 / √π
 pub const L16: f64 = 3.3635856610148585; // sqrt(N)/2^(1/4)
 pub const L24: f64 = 4.1195342878142354; // sqrt(N)/2^(1/4)
 pub const L32: f64 = 4.7568284600108843;  // sqrt(N)/2^(1/4)
-pub const L16s: f32 = L16 as f32;
+pub const L16S: f32 = L16 as f32;
 
 pub const W16S: [f32; 16] = [
     9.9393225361232851e-07, 3.9812875760042709e-06, -5.5842334104101195e-06, -2.7346404624048783e-05,
@@ -92,32 +92,3 @@ impl VoigtConstants for f64 {
     const RSQRTPI: Self = 0.5641895835477563;
     const SQRT2: Self = std::f64::consts::SQRT_2; 
 }
-
-// pub trait WeidemanParams<T> 
-// where T: Float + 'static {
-//     fn coef(&self) -> &[T];
-//     fn l(&self) -> T;
-// }
-// struct WParams<P> 
-// where P: Float + 'static {
-//     coef: &'static [P],
-//     l: P
-// } 
-// impl<T> WeidemanParams<T> for WParams<T> 
-// where T: Float + 'static
-// {
-//     fn coef(&self) -> &[T] {&self.coef}
-//     fn l(&self) -> T {self.l}
-// }
-
-
-// const W16f64 : WParams<f64> = WParams {
-//     coef: &W16D,
-//     l: L16
-// };
-
-
-// const W16f32 : WParams<f32> = WParams {
-//     coef: &W16S,
-//     l: L16s
-// };

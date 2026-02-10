@@ -1,5 +1,5 @@
 mod const_parameters;
-use pulp::x86::V3;
+use pulp::x86::{V3, V4};
 pub use crate::const_parameters::*;
 
 mod scalar;
@@ -10,8 +10,6 @@ pub use crate::simd::*;
 
 mod test_utils;
 
-mod bckp_old_impl; // TODO REMOVE
-pub use crate::bckp_old_impl::w16_f32_f32scalar; // TODO REMOVE
 
 
 // scalar versions
@@ -38,6 +36,32 @@ pub fn fast_voigt16_avx2(xvec: &[f32], x0:f32, gamma:f32, sigma:f32, intensity:f
     weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP16S)
 }
 
+pub fn fast_voigt24_avx2(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
+    let simd = V3::try_new().unwrap();
+    weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP24)
+}
+
+pub fn fast_voigt32_avx2(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
+    let simd = V3::try_new().unwrap();
+    weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP32)
+}
+
+pub fn fast_voigt16_avx512(xvec: &[f32], x0:f32, gamma:f32, sigma:f32, intensity:f32) -> Vec<f32>{
+    let simd = V4::try_new().unwrap();
+    weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP16S)
+}
+
+pub fn fast_voigt24_avx512(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
+    let simd = V4::try_new().unwrap();
+    weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP24)
+}
+
+pub fn fast_voigt32_avx512(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
+    let simd = V4::try_new().unwrap();
+    weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP32)
+}
+
+
 
 #[cfg(test)]
 mod tests {
@@ -46,10 +70,6 @@ mod tests {
 
     #[test]
     fn test_scalar_accuarcy() {
-        // assert!(evaluate_accuracy(fast_voigt16_s, 1E-6));
-        // assert!(evaluate_accuracy(fast_voigt16, 1E-7));
-        // assert!(evaluate_accuracy(fast_voigt24, 1E-10));
-        // assert!(evaluate_accuracy(fast_voigt32, 1E-13));
         assert_accuracy(fast_voigt16_s, 3E-7);
         assert_accuracy(fast_voigt16, 6E-8);
         assert_accuracy(fast_voigt24, 4E-11);
@@ -60,6 +80,13 @@ mod tests {
     #[test]
     fn test_simd_accuarcy() {
         assert_accuracy(fast_voigt16_avx2, 3E-7);
+        assert_accuracy(fast_voigt24_avx2, 4E-11);
+        assert_accuracy(fast_voigt32_avx2, 2E-14);
+
+        assert_accuracy(fast_voigt16_avx512, 3E-7);
+        assert_accuracy(fast_voigt24_avx512, 4E-11);
+        assert_accuracy(fast_voigt32_avx512, 2E-14);
+
     }
 
 }

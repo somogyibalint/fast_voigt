@@ -6,7 +6,8 @@ edition = "2024"
 [dependencies]
 num-complex = { version = "0.4.6", default-features = false }
 num-traits = { version = "0.2.19", default-features = true }
-pulp = "0.22.2"
+pulp = { version = "0.22.2", features = ["x86-v4"] }
+paste = "1.0.15"
 
 [dev-dependencies]
 criterion = { version = "0.7", features = ["html_reports"] }
