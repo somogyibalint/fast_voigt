@@ -44,7 +44,7 @@ P : Float + FromPrimitive  + VoigtConstants , // f32 or f64
     let mut y = Vec::with_capacity(xvec.len());
     let coef = calc_constants(gamma, sigma, intensity, approx.l);
     for x in xvec.iter() {        
-        y.push(eval_weidman(*x - x0, coef, &approx));
+        y.push(eval_weideman(*x - x0, coef, &approx));
     }
     y
     
@@ -52,7 +52,7 @@ P : Float + FromPrimitive  + VoigtConstants , // f32 or f64
 
 
 #[inline(always)]
-pub(crate) fn eval_weidman<P>(dx: P, c: (P,P,P,P,P,P), approx: &WeidemanParams<P>) -> P where 
+pub(crate) fn eval_weideman<P>(dx: P, c: (P,P,P,P,P,P), approx: &WeidemanParams<P>) -> P where 
 P : Float + FromPrimitive + VoigtConstants, {
         let denominator: P = P::ONE / (P::TWO*dx*dx + c.1);
 
