@@ -31,9 +31,14 @@ pub fn fast_voigt32(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -
 
 
 // SIMD versions
-pub fn fast_voigt16_avx2(xvec: &[f32], x0:f32, gamma:f32, sigma:f32, intensity:f32) -> Vec<f32>{
+pub fn fast_voigt16s_avx2(xvec: &[f32], x0:f32, gamma:f32, sigma:f32, intensity:f32) -> Vec<f32>{
     let simd = V3::try_new().unwrap();
     weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP16S)
+}
+
+pub fn fast_voigt16d_avx2(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
+    let simd = V3::try_new().unwrap();
+    weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP16)
 }
 
 pub fn fast_voigt24_avx2(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
@@ -46,9 +51,14 @@ pub fn fast_voigt32_avx2(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f
     weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP32)
 }
 
-pub fn fast_voigt16_avx512(xvec: &[f32], x0:f32, gamma:f32, sigma:f32, intensity:f32) -> Vec<f32>{
+pub fn fast_voigt16s_avx512(xvec: &[f32], x0:f32, gamma:f32, sigma:f32, intensity:f32) -> Vec<f32>{
     let simd = V4::try_new().unwrap();
     weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP16S)
+}
+
+pub fn fast_voigt16d_avx512(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
+    let simd = V4::try_new().unwrap();
+    weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP16)
 }
 
 pub fn fast_voigt24_avx512(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
@@ -79,14 +89,15 @@ mod tests {
 
     #[test]
     fn test_simd_accuarcy() {
-        assert_accuracy(fast_voigt16_avx2, 3E-7);
+        assert_accuracy(fast_voigt16s_avx2, 3E-7);
+        assert_accuracy(fast_voigt16d_avx2, 6E-8);
         assert_accuracy(fast_voigt24_avx2, 4E-11);
         assert_accuracy(fast_voigt32_avx2, 2E-14);
 
-        assert_accuracy(fast_voigt16_avx512, 3E-7);
+        assert_accuracy(fast_voigt16s_avx512, 3E-7);
+        assert_accuracy(fast_voigt16d_avx512, 6E-8);
         assert_accuracy(fast_voigt24_avx512, 4E-11);
         assert_accuracy(fast_voigt32_avx512, 2E-14);
-
     }
 
 }

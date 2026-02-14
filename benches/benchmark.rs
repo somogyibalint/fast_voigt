@@ -30,21 +30,26 @@ fn w16_scalar_benchmarks(c: &mut Criterion) {
 }
 
 
-
-fn simd_init_cost(x: &[f32]) -> Vec<f32> {
-    let simd = V3::try_new().unwrap(); 
-    weideman16_avx2_f32(simd, &x, 0.0, 0.5, 0.5, black_box(1.0))
-}
-
-fn w16_simd_benchmarks(c: &mut Criterion) {
+fn w16_avx2_benchmarks(c: &mut Criterion) {
     let simd = V3::try_new().unwrap(); 
     let x = linspace(0.0f32, 5.0f32, 2048);
-    c.bench_function("w16 avx2, f32 <ref>", |b| b.iter(|| weideman16_avx2_f32(simd, &x, 0.0, 0.5, 0.5, black_box(1.0))));
-    c.bench_function("w16 avx2, f32 <+init simd>", |b| b.iter(|| simd_init_cost(&x)));    
-
-    c.bench_function("w16 avx2, f32", |b| b.iter(|| fast_voigt16_avx2( &x, 0.0, 0.5, 0.5, black_box(1.0))));
-    c.bench_function("w16 avx512, f32", |b| b.iter(|| fast_voigt16_avx512( &x, 0.0, 0.5, 0.5, black_box(1.0))));
+    c.bench_function("w16 avx2, f32 <ref>", |b| b.iter(|| weideman16_avx2_f32(simd, &x, 0.0, 0.5, 0.5, black_box(1.0))));  
+    c.bench_function("w16 avx2, f32", |b| b.iter(|| fast_voigt16s_avx2( &x, 0.0, 0.5, 0.5, black_box(1.0))));
+    let x = linspace(0.0f64, 5.0f64, 2048);
+    c.bench_function("w16 avx2, f64", |b| b.iter(|| fast_voigt16d_avx2( &x, 0.0, 0.5, 0.5, black_box(1.0))));
+    c.bench_function("w24 avx2, f64", |b| b.iter(|| fast_voigt24_avx2( &x, 0.0, 0.5, 0.5, black_box(1.0))));
+    c.bench_function("w32 avx2, f64", |b| b.iter(|| fast_voigt32_avx2( &x, 0.0, 0.5, 0.5, black_box(1.0))));
 }
 
-criterion_group!(benches, w16_scalar_benchmarks, w16_simd_benchmarks);
+
+fn w16_avx512_benchmarks(c: &mut Criterion) {
+    let x = linspace(0.0f32, 5.0f32, 2048);
+    c.bench_function("w16 avx512, f32", |b| b.iter(|| fast_voigt16s_avx512( &x, 0.0, 0.5, 0.5, black_box(1.0))));
+    let x = linspace(0.0f64, 5.0f64, 2048);
+    c.bench_function("w16 avx512, f64", |b| b.iter(|| fast_voigt16d_avx512( &x, 0.0, 0.5, 0.5, black_box(1.0))));
+    c.bench_function("w24 avx512, f64", |b| b.iter(|| fast_voigt24_avx512( &x, 0.0, 0.5, 0.5, black_box(1.0))));
+    c.bench_function("w32 avx512, f64", |b| b.iter(|| fast_voigt32_avx512( &x, 0.0, 0.5, 0.5, black_box(1.0))));
+}
+
+criterion_group!(benches, w16_scalar_benchmarks, w16_avx2_benchmarks, w16_avx512_benchmarks);
 criterion_main!(benches);

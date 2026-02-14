@@ -29,6 +29,7 @@ macro_rules! impl_simd_data {
     ($float_prec:ty, $simd_data:ty, $instr_set:ty) => {
         impl SimdData<$float_prec, $simd_data> for $instr_set {
             paste! {
+                #[inline(always)]
                 fn as_simd<'a>(&'a self, x: &'a [$float_prec]) -> (&'a [$simd_data], &'a [$float_prec] ) {
                     $instr_set::[<as_simd_ $float_prec s>](x)
                 }
@@ -121,6 +122,8 @@ V: Copy {
     S : SimdData<P, V>,
     V: Copy {
         type Output = Vec<P>;
+
+        #[inline(always)]
         fn call(self) -> Self::Output {
             let Self { simd, xvec, x0, gamma,  sigma, intensity, approx, ..} = self;
 
