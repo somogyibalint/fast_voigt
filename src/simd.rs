@@ -320,37 +320,4 @@ mod tests {
     // }
 
 
-    #[test]
-    fn test_work() {
-        use crate::test_utils::linspace;
-
-        let x = linspace(0.0, 10.0, 2001);
-        let x0 = 0.0;
-        let gamma = 0.5;
-        let sigma = 0.5;
-        let intensity = 1.0;
-
-        if let Some(simd) = V3::try_new() {
-            let y = weideman16_avx2_f32(simd, &x, x0, gamma, sigma, intensity); 
-            println!("{}", y[0]);
-            println!("{}", y[1]);
-            println!("{}", y[7]);
-            println!("{}", y[63]);
-            println!("{}", y[127]);
-            println!("{}", y[255]);
-            println!("{}", y[1023]);
-            println!("{}", y[2000]);
-
-        // (0, 4.17418561040735436e-01),
-        // (1, 4.17408650320942820e-01),
-        // (7, 4.16933282958152407e-01),
-        // (63, 3.80311100325604223e-01),
-        // (127, 2.90046558879590188e-01),
-        // (255, 1.20770262633453737e-01),
-        // (511, 2.64831190930530785e-02),
-        // (1023, 6.20284807080986877e-03),
-        // (2000, 1.59956736012200696e-03)
-        }
-    }
-
 }

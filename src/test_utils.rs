@@ -27,21 +27,6 @@ const TEST_DATA: [(f64, [f64; 32]); 13] = [
 ];
 
 
-pub(crate) fn linspace<T>(fr: T, to: T, n: u32) -> Vec<T> where 
-T: Float + FromPrimitive + AddAssign {
-    let mut x = T::zero();
-    let dx = (to - fr) / ( T::from(n - 1).unwrap()  );
-    let mut array = Vec::with_capacity(n as usize);
-    for _ in 0..n {
-        array.push(x);
-        x += dx;
-    }
-    array
-}
-
-
-
-
 pub(crate) fn assert_accuracy<T>(approx: fn(&[T], T, T, T, T)->Vec<T>, precision: f64) where 
 T: Float + FromPrimitive + AsPrimitive<f64> + AddAssign + Display + LowerExp{
     let max_err = max_error(approx);

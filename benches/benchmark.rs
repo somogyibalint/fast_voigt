@@ -2,9 +2,9 @@ use std::{hint::black_box};
 use std::ops::AddAssign;
 use criterion::{criterion_group, criterion_main, Criterion};
 use fast_voigt::*;
-
 use num_traits::{Float};
-use pulp::x86::V3;
+
+
 
 fn linspace<T>(fr: T, to: T, n: u32) -> Vec<T> 
 where T: Float + AddAssign 
@@ -29,8 +29,9 @@ fn w16_scalar_benchmarks(c: &mut Criterion) {
     c.bench_function("w32 scalar, f64", |b| b.iter(|| fast_voigt32(&x, 0.0, 0.5, 0.5, black_box(1.0))));
 }
 
-
+#[cfg(feature = "avx2")]
 fn w16_avx2_benchmarks(c: &mut Criterion) {
+    use pulp::x86::V3;
     let simd = V3::try_new().unwrap(); 
     let x = linspace(0.0f32, 5.0f32, 2048);
     c.bench_function("w16 avx2, f32 <ref>", |b| b.iter(|| weideman16_avx2_f32(simd, &x, 0.0, 0.5, 0.5, black_box(1.0))));  
@@ -41,7 +42,7 @@ fn w16_avx2_benchmarks(c: &mut Criterion) {
     c.bench_function("w32 avx2, f64", |b| b.iter(|| fast_voigt32_avx2( &x, 0.0, 0.5, 0.5, black_box(1.0))));
 }
 
-
+#[cfg(feature = "avx512")]
 fn w16_avx512_benchmarks(c: &mut Criterion) {
     let x = linspace(0.0f32, 5.0f32, 2048);
     c.bench_function("w16 avx512, f32", |b| b.iter(|| fast_voigt16s_avx512( &x, 0.0, 0.5, 0.5, black_box(1.0))));
@@ -51,5 +52,16 @@ fn w16_avx512_benchmarks(c: &mut Criterion) {
     c.bench_function("w32 avx512, f64", |b| b.iter(|| fast_voigt32_avx512( &x, 0.0, 0.5, 0.5, black_box(1.0))));
 }
 
+#[cfg(all(not(feature = "avx2"), not(feature = "avx512")))]
+criterion_group!(benches, w16_scalar_benchmarks);
+
+#[cfg(all(feature = "avx2", not(feature = "avx512")))]
+criterion_group!(benches, w16_scalar_benchmarks, w16_avx2_benchmarks);
+
+#[cfg(all(feature = "avx512", not(feature = "avx2")))]
+criterion_group!(benches, w16_scalar_benchmarks, w16_avx512_benchmarks);
+
+#[cfg(all(feature = "avx2", feature = "avx512"))]
 criterion_group!(benches, w16_scalar_benchmarks, w16_avx2_benchmarks, w16_avx512_benchmarks);
+
 criterion_main!(benches);

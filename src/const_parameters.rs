@@ -3,8 +3,8 @@ use num_traits::Float;
 pub const SQRT2PI: f64 = 2.5066282746310002; // √(2π)
 pub const RSQRTPI: f64 = 0.5641895835477563; // 1.0 / √π 
 
-pub const L16: f64 = 3.3635856610148585; // sqrt(N)/2^(1/4)
-pub const L24: f64 = 4.1195342878142354; // sqrt(N)/2^(1/4)
+pub const L16: f64 = 3.3635856610148585;  // sqrt(N)/2^(1/4)
+pub const L24: f64 = 4.1195342878142354;  // sqrt(N)/2^(1/4)
 pub const L32: f64 = 4.7568284600108843;  // sqrt(N)/2^(1/4)
 pub const L16S: f32 = L16 as f32;
 

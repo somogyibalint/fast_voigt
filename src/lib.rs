@@ -31,41 +31,49 @@ pub fn fast_voigt32(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -
 
 
 // SIMD versions
+#[cfg(feature = "avx2")]
 pub fn fast_voigt16s_avx2(xvec: &[f32], x0:f32, gamma:f32, sigma:f32, intensity:f32) -> Vec<f32>{
     let simd = V3::try_new().unwrap();
     weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP16S)
 }
 
+#[cfg(feature = "avx2")]
 pub fn fast_voigt16d_avx2(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
     let simd = V3::try_new().unwrap();
     weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP16)
 }
 
+#[cfg(feature = "avx2")]
 pub fn fast_voigt24_avx2(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
     let simd = V3::try_new().unwrap();
     weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP24)
 }
 
+#[cfg(feature = "avx2")]
 pub fn fast_voigt32_avx2(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
     let simd = V3::try_new().unwrap();
     weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP32)
 }
 
+#[cfg(feature = "avx512")]
 pub fn fast_voigt16s_avx512(xvec: &[f32], x0:f32, gamma:f32, sigma:f32, intensity:f32) -> Vec<f32>{
     let simd = V4::try_new().unwrap();
     weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP16S)
 }
 
+#[cfg(feature = "avx512")]
 pub fn fast_voigt16d_avx512(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
     let simd = V4::try_new().unwrap();
     weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP16)
 }
 
+#[cfg(feature = "avx512")]
 pub fn fast_voigt24_avx512(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
     let simd = V4::try_new().unwrap();
     weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP24)
 }
 
+#[cfg(feature = "avx512")]
 pub fn fast_voigt32_avx512(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
     let simd = V4::try_new().unwrap();
     weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP32)
@@ -84,20 +92,23 @@ mod tests {
         assert_accuracy(fast_voigt16, 6E-8);
         assert_accuracy(fast_voigt24, 4E-11);
         assert_accuracy(fast_voigt32, 2E-14);
-        
     }
 
     #[test]
-    fn test_simd_accuarcy() {
+    #[cfg(feature = "avx2")]
+    fn test_avx2_accuarcy() {
         assert_accuracy(fast_voigt16s_avx2, 3E-7);
         assert_accuracy(fast_voigt16d_avx2, 6E-8);
         assert_accuracy(fast_voigt24_avx2, 4E-11);
         assert_accuracy(fast_voigt32_avx2, 2E-14);
+    }
 
+    #[test]
+    #[cfg(feature = "avx512")]
+    fn test_avx512_accuarcy() {
         assert_accuracy(fast_voigt16s_avx512, 3E-7);
         assert_accuracy(fast_voigt16d_avx512, 6E-8);
         assert_accuracy(fast_voigt24_avx512, 4E-11);
         assert_accuracy(fast_voigt32_avx512, 2E-14);
     }
-
 }
