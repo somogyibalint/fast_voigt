@@ -1,5 +1,5 @@
 mod const_parameters;
-use pulp::x86::{V3, V4};
+use cfg_if::cfg_if;
 pub use crate::const_parameters::*;
 
 mod scalar;
@@ -11,8 +11,6 @@ pub use crate::simd::*;
 mod test_utils;
 
 
-
-// scalar versions
 pub fn fast_voigt16_s(xvec: &[f32], x0:f32, gamma:f32, sigma:f32, intensity:f32) -> Vec<f32>{
     weideman_scalar(xvec, x0, gamma, sigma, intensity, &WP16S)
 }
@@ -30,55 +28,57 @@ pub fn fast_voigt32(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -
 }
 
 
-// SIMD versions
-#[cfg(feature = "avx2")]
-pub fn fast_voigt16s_avx2(xvec: &[f32], x0:f32, gamma:f32, sigma:f32, intensity:f32) -> Vec<f32>{
-    let simd = V3::try_new().unwrap();
-    weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP16S)
+cfg_if! {
+    if #[cfg(feature = "avx2")] {
+        use pulp::x86::V3;
+
+        pub fn fast_voigt16s_avx2(xvec: &[f32], x0:f32, gamma:f32, sigma:f32, intensity:f32) -> Vec<f32>{
+            let simd = V3::try_new().unwrap();
+            weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP16S)
+        }
+
+        pub fn fast_voigt16d_avx2(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
+            let simd = V3::try_new().unwrap();
+            weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP16)
+        }
+
+        pub fn fast_voigt24_avx2(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
+            let simd = V3::try_new().unwrap();
+            weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP24)
+        }
+
+        pub fn fast_voigt32_avx2(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
+            let simd = V3::try_new().unwrap();
+            weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP32)
+        }
+    } 
 }
 
-#[cfg(feature = "avx2")]
-pub fn fast_voigt16d_avx2(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
-    let simd = V3::try_new().unwrap();
-    weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP16)
-}
+cfg_if! {
+    if #[cfg(feature = "avx512")] {
+        use pulp::x86::V4;
+        
+        pub fn fast_voigt16s_avx512(xvec: &[f32], x0:f32, gamma:f32, sigma:f32, intensity:f32) -> Vec<f32>{
+            let simd = V4::try_new().unwrap();
+            weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP16S)
+        }
 
-#[cfg(feature = "avx2")]
-pub fn fast_voigt24_avx2(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
-    let simd = V3::try_new().unwrap();
-    weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP24)
-}
+        pub fn fast_voigt16d_avx512(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
+            let simd = V4::try_new().unwrap();
+            weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP16)
+        }
 
-#[cfg(feature = "avx2")]
-pub fn fast_voigt32_avx2(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
-    let simd = V3::try_new().unwrap();
-    weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP32)
-}
+        pub fn fast_voigt24_avx512(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
+            let simd = V4::try_new().unwrap();
+            weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP24)
+        }
 
-#[cfg(feature = "avx512")]
-pub fn fast_voigt16s_avx512(xvec: &[f32], x0:f32, gamma:f32, sigma:f32, intensity:f32) -> Vec<f32>{
-    let simd = V4::try_new().unwrap();
-    weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP16S)
+        pub fn fast_voigt32_avx512(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
+            let simd = V4::try_new().unwrap();
+            weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP32)
+        }
+    } 
 }
-
-#[cfg(feature = "avx512")]
-pub fn fast_voigt16d_avx512(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
-    let simd = V4::try_new().unwrap();
-    weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP16)
-}
-
-#[cfg(feature = "avx512")]
-pub fn fast_voigt24_avx512(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
-    let simd = V4::try_new().unwrap();
-    weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP24)
-}
-
-#[cfg(feature = "avx512")]
-pub fn fast_voigt32_avx512(xvec: &[f64], x0:f64, gamma:f64, sigma:f64, intensity:f64) -> Vec<f64>{
-    let simd = V4::try_new().unwrap();
-    weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP32)
-}
-
 
 
 #[cfg(test)]

@@ -102,8 +102,6 @@ pub(crate) fn weideman_simd<P, S, V>(simd:S, xvec: &[P], x0:P, gamma:P, sigma:P,
 P : Float + FromPrimitive  + VoigtConstants,
 S : SimdData<P, V>,
 V: Copy {
-
-
     struct Impl<'a, P, S, V> where 
     P : Float + FromPrimitive  + VoigtConstants + 'static,
     S : SimdData<P, V>,
@@ -117,6 +115,7 @@ V: Copy {
         approx: &'static  WeidemanParams<P>,
         phantom: std::marker::PhantomData<V>
     }
+    
     impl<P, S, V> pulp::NullaryFnOnce for Impl<'_, P, S, V> where 
     P : Float + FromPrimitive  + VoigtConstants,
     S : SimdData<P, V>,
