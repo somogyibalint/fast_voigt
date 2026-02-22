@@ -34,7 +34,7 @@ fn w16_avx2_benchmarks(c: &mut Criterion) {
     use pulp::x86::V3;
     let simd = V3::try_new().unwrap(); 
     let x = linspace(0.0f32, 5.0f32, 2048);
-    c.bench_function("w16 avx2, f32 <ref>", |b| b.iter(|| weideman16_avx2_f32(simd, &x, 0.0, 0.5, 0.5, black_box(1.0))));  
+    // c.bench_function("w16 avx2, f32 <ref>", |b| b.iter(|| weideman16_avx2_f32(simd, &x, 0.0, 0.5, 0.5, black_box(1.0))));  
     c.bench_function("w16 avx2, f32", |b| b.iter(|| fast_voigt16s_avx2( &x, 0.0, 0.5, 0.5, black_box(1.0))));
     let x = linspace(0.0f64, 5.0f64, 2048);
     c.bench_function("w16 avx2, f64", |b| b.iter(|| fast_voigt16d_avx2( &x, 0.0, 0.5, 0.5, black_box(1.0))));

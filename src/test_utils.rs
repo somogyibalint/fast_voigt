@@ -30,7 +30,7 @@ const TEST_DATA: [(f64, [f64; 32]); 13] = [
 pub(crate) fn assert_accuracy<T>(approx: fn(&[T], T, T, T, T)->Vec<T>, precision: f64) where 
 T: Float + FromPrimitive + AsPrimitive<f64> + AddAssign + Display + LowerExp{
     let max_err = max_error(approx);
-    if max_err.error > T::from_f64(precision).unwrap() {
+    if !max_err.error.is_finite() || max_err.error > T::from_f64(precision).unwrap() {
         panic!(" >> Accuracy criteria not satisfied: {:.2e} > {:.2e} at x: {:.2e} ρ: {:.6e}", 
         max_err.error, precision, 
         max_err.at_x,
@@ -65,7 +65,8 @@ T: Float + FromPrimitive + AsPrimitive<f64> + AddAssign + Sized {
             .map(|(&l, &r)| l-r)
             .collect::<Vec<T>>();
         let (at_x, err) = max_at(&x, &err);
-        if err > max_error.error {
+
+        if err > max_error.error || !err.is_finite() {
             max_error = ApproxError{error: err, at_rho: rho, at_x: at_x}
         }
     }
@@ -78,7 +79,7 @@ T: Float {
     let mut maxvalue = yarr[0];
     for (x, y) in xarr.iter().zip(yarr.iter()) {
         if !y.is_finite() {
-            return  (at, maxvalue)
+            return  (at, T::nan())
         }
         if *y > maxvalue {
             at = *x;

@@ -1,3 +1,5 @@
+use core::f32;
+
 use crate::const_parameters::*;
 use num_traits::{Float, FromPrimitive};
 
@@ -37,19 +39,32 @@ use num_traits::{Float, FromPrimitive};
 //     Re(z) = 2(2⋅Ln²σ² - x² - γ²) /  (2⋅x² + (2⋅Ln*σ + √2⋅γ)²)
 //     Im(z) = (4⋅√2⋅Ln⋅x⋅σ)    / (2⋅x² + (2⋅Ln*σ + √2⋅γ)²)
 
+#[inline(always)]
+pub(crate) fn lorentz<P>(xvec: &[P], x0:P, gamma:P, intensity:P) -> Vec<P> where 
+P : Float + FromPrimitive + VoigtConstants, // f32 or f64
+{   
+    let mut y = Vec::with_capacity(xvec.len());
+    let c0 = intensity * gamma / P::PI;
+    let gamma2 = gamma*gamma;
+    for x in xvec.iter() {        
+        y.push(c0 / ((*x-x0) * (*x-x0) + gamma2));
+    }
+    y
+}
 
 pub(crate) fn weideman_scalar<P>(xvec: &[P], x0:P, gamma:P, sigma:P, intensity:P, approx: &WeidemanParams<P>) -> Vec<P> where 
 P : Float + FromPrimitive  + VoigtConstants , // f32 or f64
 {   
+    if sigma == P::zero() {
+        return lorentz(xvec, x0, gamma, intensity);
+    }
     let mut y = Vec::with_capacity(xvec.len());
     let coef = calc_constants(gamma, sigma, intensity, approx.l);
     for x in xvec.iter() {        
         y.push(eval_weideman(*x - x0, coef, &approx));
     }
     y
-    
 }
-
 
 #[inline(always)]
 pub(crate) fn eval_weideman<P>(dx: P, c: (P,P,P,P,P,P), approx: &WeidemanParams<P>) -> P where 
@@ -75,8 +90,6 @@ P : Float + FromPrimitive + VoigtConstants, {
 
         c.0 * (p_re*t_re - p_im*t_im)
 }
-
-
 
 
 // Evaluate z₁ = z₁⋅z₂ + r = 
