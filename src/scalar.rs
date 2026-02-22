@@ -1,5 +1,3 @@
-use core::f32;
-
 use crate::const_parameters::*;
 use num_traits::{Float, FromPrimitive};
 

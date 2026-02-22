@@ -1,9 +1,8 @@
 use pulp::Simd;
 use pulp::x86::{V3, V4};
-use pulp::{cast, f32x8, f64x4, f32x16, f64x8};
+use pulp::{f32x8, f64x4, f32x16, f64x8};
 use num_traits::{Float, FromPrimitive};
 use core::iter;
-use std::fmt::Debug;
 use std::marker::PhantomData;
 use paste::paste;
 use crate::const_parameters::*;
