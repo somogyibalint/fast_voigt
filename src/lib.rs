@@ -6,9 +6,14 @@ mod scalar;
 use crate::scalar::*;
 
 mod simd;
-pub use crate::simd::*;
+#[cfg(any(feature = "avx2", feature = "avx512"))]
+pub(crate) use crate::simd::*;
 
 mod test_utils;
+
+// #[cfg(feature = "py_bindings")]
+mod py_bindings;
+ 
 
 
 pub fn fast_voigt16_s(xvec: &[f32], x0:f32, gamma:f32, sigma:f32, intensity:f32) -> Vec<f32>{
@@ -57,7 +62,7 @@ cfg_if! {
 cfg_if! {
     if #[cfg(feature = "avx512")] {
         use pulp::x86::V4;
-        
+
         pub fn fast_voigt16s_avx512(xvec: &[f32], x0:f32, gamma:f32, sigma:f32, intensity:f32) -> Vec<f32>{
             let simd = V4::try_new().unwrap();
             weideman_simd(simd, xvec, x0, gamma, sigma, intensity, &WP16S)

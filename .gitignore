@@ -1,4 +1,7 @@
 /target
-/python
+/tmp
+/dev_python
+*.dll
+*.pyd
 
 Cargo.lock

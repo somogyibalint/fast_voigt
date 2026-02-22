@@ -68,6 +68,7 @@ pub(crate) trait VoigtConstants {
     const ONE: Self;
     const TWO: Self;
     const FOUR: Self;
+    const PI: Self;
     const SQRT2PI: Self;
     const RSQRTPI: Self;
     const SQRT2: Self; 
@@ -78,6 +79,7 @@ impl VoigtConstants for f32 {
     const ONE: Self = 1f32;
     const TWO: Self = 2f32;
     const FOUR: Self = 4f32;
+    const PI: Self = std::f32::consts::PI;
     const SQRT2PI: Self = 2.5066282746310002;
     const RSQRTPI: Self = 0.5641895835477563;
     const SQRT2: Self = std::f32::consts::SQRT_2; 
@@ -88,6 +90,7 @@ impl VoigtConstants for f64 {
     const ONE: Self = 1f64;
     const TWO: Self = 2f64;
     const FOUR: Self = 4f64;
+    const PI: Self = std::f64::consts::PI;
     const SQRT2PI: Self = 2.5066282746310002;
     const RSQRTPI: Self = 0.5641895835477563;
     const SQRT2: Self = std::f64::consts::SQRT_2; 
