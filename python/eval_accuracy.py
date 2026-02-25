@@ -2,7 +2,7 @@ from typing import Callable
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.special import voigt_profile
-from fast_voigt import fast_voigt16_single, fast_voigt16, fast_voigt24, fast_voigt32
+from scalar.fast_voigt import fast_voigt16_single, fast_voigt16, fast_voigt24, fast_voigt32
 
 EPS = 1E-15
 
@@ -12,8 +12,8 @@ def eval_approx(approx: Callable, xax: np.ndarray, rho_ax: np.ndarray):
             γ = ρ 
             σ = 1-ρ
     '''
-    abs_err = np.zeros((len(rho_ax), len(xax)), dtype= float)
-    rel_err = np.zeros((len(rho_ax), len(xax)), dtype= float)
+    abs_err = np.zeros((len(rho_ax), len(xax)), dtype=float)
+    rel_err = np.zeros((len(rho_ax), len(xax)), dtype=float)
     for i, rho in enumerate(rho_ax):
         gamma, sigma = rho, 1.0 - rho
         y_accurate = voigt_profile(xax, sigma, gamma)
@@ -39,20 +39,19 @@ def calc_extent(xax:  np.ndarray, rho_ax:  np.ndarray):
 
 
 approximations = (
-    ('W16 (f32)',  fast_voigt16_single, (0,0)),
-    ('W16 (f64)',  fast_voigt16, (0,1)),
-    ('W24 (f64)',  fast_voigt24, (1,0)),
+    ('W16 (f32)', fast_voigt16_single, (0,0)),
+    ('W16 (f64)', fast_voigt16, (0,1)),
+    ('W24 (f64)', fast_voigt24, (1,0)),
     ('W32 (f64)', fast_voigt32, (1,1)),
 )
 
-xax = np.linspace(0.0, 20.0, 1000)
-rho_ax = np.linspace(0.0, 1.0, 500)
+xax = np.linspace(0.0, 20.0, 2000)
+rho_ax = np.linspace(0.0, 1.0, 1000)
 extent = calc_extent(xax, rho_ax)
 
 fig, axs = plt.subplots(2, 2, figsize = (11, 8))
-fig.suptitle('log₁₀(|ε|) for the family of Weideman approximations')
+fig.suptitle("log₁₀(|ε|) for the family of Weideman's approximations")
 for approx_name, approx, ax_pos in approximations:
-
     ax: plt.Axes = axs[*ax_pos]
     if 'f32' in approx_name:
         xax_single = xax.astype(np.float32)
@@ -64,7 +63,7 @@ for approx_name, approx, ax_pos in approximations:
 
     n_nan = np.count_nonzero(np.isnan(abs_err)) 
     assert(n_nan == 0)
-
+    print(f'Max error: {abs_err.max():.4e}')
     abs_err = np.clip(abs_err, a_min=EPS, a_max=None)
 
     log_abs_err = np.log10(abs_err)
@@ -74,6 +73,7 @@ for approx_name, approx, ax_pos in approximations:
     ax.set_xlabel('x')
     ax.set_ylabel('ρ')
     fig.colorbar(img)
+    
 
 fig.tight_layout()
 plt.show()
